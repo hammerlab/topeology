@@ -47,7 +47,7 @@ def load():
         print(sp.list2cmdline(compile_command))
     sp.check_call(compile_command)
 
-    link_command = ["sudo"
+    link_command = ["sudo",
                     compiler,
                     file_template % "o",
                     "-o", file_template % "so",
