@@ -31,11 +31,11 @@ def load():
         os_specific_link_args = ["-bundle", "-flat_namespace", "-undefined", "suppress"]
         os_specific_compile_args = None
 
-    compile_command = [compiler,
+    compile_command = ["sudo",
+                       compiler,
                        file_template % "c",
                        "-o", file_template % "o",
                        "-Wall", "-Wextra",
-                       "-fpic",
                        "-c",
                        "-I", seq_align_libs,
                        "-I", pg_include_dir_server,
@@ -47,7 +47,8 @@ def load():
         print(sp.list2cmdline(compile_command))
     sp.check_call(compile_command)
 
-    link_command = [compiler,
+    link_command = ["sudo"
+                    compiler,
                     file_template % "o",
                     "-o", file_template % "so",
                     bit_array,
