@@ -3,6 +3,7 @@ from os import path, environ
 from shutil import copy2
 import psycopg2
 import platform
+from urlparse import urlparse
 
 def handle_false(value):
     # Ensure that false in config isn't interpreted as True
@@ -11,6 +12,23 @@ def handle_false(value):
     return True
 
 DEBUG = handle_false(environ.get('DEBUG', False))
+
+def pg_conn(db_uri):
+    db_uri_parsed = urlparse(db_uri)
+    username = db_uri_parsed.username
+    password = db_uri_parsed.password
+    database = db_uri_parsed.path[1:]
+    hostname = db_uri_parsed.hostname
+
+    # Weirdly, need to do this to avoid requiring a password. Handle this better.
+    if hostname == 'localhost':
+        hostname = None
+
+    return psycopg2.connect(
+        database=database,
+        user=username,
+        host=hostname,
+        password=password)
 
 def load():
     seq_align_path = environ['SEQ_ALIGN_DIR']
@@ -31,8 +49,7 @@ def load():
         os_specific_link_args = ["-bundle", "-flat_namespace", "-undefined", "suppress"]
         os_specific_compile_args = None
 
-    compile_command = ["sudo",
-                       compiler,
+    compile_command = [compiler,
                        file_template % "c",
                        "-o", file_template % "o",
                        "-Wall", "-Wextra",
@@ -47,8 +64,7 @@ def load():
         print(sp.list2cmdline(compile_command))
     sp.check_call(compile_command)
 
-    link_command = ["sudo",
-                    compiler,
+    link_command = [compiler,
                     file_template % "o",
                     "-o", file_template % "so",
                     bit_array,
@@ -64,16 +80,18 @@ def load():
         print(sp.list2cmdline(link_command))
     sp.check_call(link_command)
 
-    copy2(file_template % "so", pg_lib_dir)
+    # Using copy2 requires sudo-ing the whole file, which interferes with DB roles,
+    # so for now I'm just using cp.
+    sp.check_call(["sudo",
+                   "cp",
+                   file_template % "so",
+                   pg_lib_dir])
     pg_lib_dir_file_path = path.join(pg_lib_dir, file_template % "so")
 
-    conn = psycopg2.connect(environ['DATABASE_URI'])
+    conn = pg_conn(environ['DATABASE_URI'])
     cur = conn.cursor()
     cur.execute("LOAD '%s'" % pg_lib_dir_file_path)
-    try:
-        cur.execute("DROP FUNCTION alignment_score(text, text)")
-    except:
-        pass
+    cur.execute("DROP FUNCTION IF EXISTS alignment_score(text, text)")
     create_fn_sql = ("CREATE FUNCTION alignment_score(text, text) RETURNS integer "
                      "AS '%s', 'alignment_score' LANGUAGE C STRICT;") % pg_lib_dir_file_path
     cur.execute(create_fn_sql)
