@@ -52,7 +52,6 @@ def load():
 
     compile_command = [compiler,
                        file_template % "c",
-                       "-D PMBEC_FILE_NAME=\"%s\"" % environ['PMBEC_FILE_NAME'],
                        "-o", file_template % "o",
                        "-Wall", "-Wextra",
                        "-c",
