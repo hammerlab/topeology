@@ -4,7 +4,10 @@
 #include <string.h>
 #include "fmgr.h"
 #include "utils/builtins.h"
+#include "string_buffer/string_buffer.h"
 #include "smith_waterman.h"
+#include <zlib.h>
+#include "alignment_scoring_load.h"
 
 #ifdef PG_MODULE_MAGIC
 PG_MODULE_MAGIC;
@@ -37,6 +40,10 @@ alignment_score(PG_FUNCTION_ARGS)
   scoring_init(&scoring, match, mismatch, gap_open, gap_extend,
                no_start_gap_penalty, no_end_gap_penalty,
                no_gaps_in_a, no_gaps_in_b, no_mismatches, case_sensitive);
+  gzFile sub_matrix_file = gzopen(PMBEC_FILE_NAME, "r");
+  align_scoring_load_matrix(sub_matrix_file, PMBEC_FILE_NAME, &scoring, case_sensitive);
+  gzclose(sub_matrix_file);
+  scoring.use_match_mismatch = 0;
 
   smith_waterman_align(seq_a, seq_b, &scoring, sw);
 

@@ -39,6 +39,7 @@ def load():
     seq_align_libs = path.join(seq_align_path, "libs")
     seq_align_src = path.join(seq_align_path, "src")
     bit_array = path.join(seq_align_libs, "bit_array/bit_array.o")
+    string_buffer = path.join(seq_align_libs, "string_buffer/string_buffer.o")
 
     platform_uname = platform.uname()
     compiler = "gcc"
@@ -51,6 +52,7 @@ def load():
 
     compile_command = [compiler,
                        file_template % "c",
+                       "-D PMBEC_FILE_NAME=\"%s\"" % environ['PMBEC_FILE_NAME'],
                        "-o", file_template % "o",
                        "-Wall", "-Wextra",
                        "-c",
@@ -68,6 +70,7 @@ def load():
                     file_template % "o",
                     "-o", file_template % "so",
                     bit_array,
+                    string_buffer,
                     "-I", pg_include_dir_server,
                     "-I", seq_align_src,
                     "-L", seq_align_libs,
