@@ -116,8 +116,11 @@ alignment_score(PG_FUNCTION_ARGS)
   char use_match_mismatch = 0;
 
   // Gap penalty is equal to min(PMBEC); see pmbec_min() in pmbec.py
-  int gap_open = -50;
   int gap_extend = -50;
+
+  // Gap penalty = gap_open + gap_extend * length of gap, so we'll just rely on gap_extend
+  // without any opening-specific penalties
+  int gap_open = 0;
 
   // No special treatment for gaps at the start
   char no_start_gap_penalty = 0;
