@@ -3,6 +3,7 @@ from os import path, environ
 from shutil import copy2
 import platform
 from urlparse import urlparse
+from impala.dbapi import connect
 
 def handle_false(value):
     # Ensure that false in config isn't interpreted as True
@@ -11,6 +12,14 @@ def handle_false(value):
     return True
 
 DEBUG = handle_false(environ.get('DEBUG', False))
+
+def run_command(command_str, error_ok=False):
+    try:
+        sp.check_call(command_str.split(" "))
+    except subprocess.CalledProcessError as e:
+        if error_ok:
+            return
+        raise e
 
 def load():
     seq_align_path = environ['SEQ_ALIGN_DIR']
@@ -55,5 +64,20 @@ def load():
         link_command.append("-g")
         print(sp.list2cmdline(link_command))
     sp.check_call(link_command)
+
+    hdfs_dir = environ['IMPALA_UDF_HDFS_DIR']
+    file_on_hdfs = path.join(hdfs_dir, file_template % "so")
+    run_command("hdfs dfs -rm -skipTrash %s" % file_on_hdfs, error_ok=True)
+    run_command("hdfs dfs -copyFromLocal %s %s" % (file_template % "so", hdfs_dir))
+
+    impala_host = environ['IMPALA_HOST']
+    impala_port = environ['IMPALA_PORT']
+    impala_db = environ['IMPALA_DB']
+    conn = connect(host=impala_host, port=impala_port, database=impala_db)
+    cursor = conn.cursor()
+    cursor.execute("drop function if exists alignment_score(string, string)")
+    cursor.execute(("create function alignment_score(string, string) returns int location "
+                    "'%s' "
+                    "symbol='alignment_score_impala'") % file_on_hdfs)
 
 load()
