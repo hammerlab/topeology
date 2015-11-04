@@ -54,6 +54,7 @@ if __name__ == '__main__':
         install_requires=[
             'numpy >=1.10.1, <2.0',
             'pandas >=0.17.0',
+            'pepdata >= 0.6.7',
             'nose >=1.3.7'
         ],
         long_description=readme,
