@@ -14,6 +14,7 @@
 
 from __future__ import print_function, absolute_import
 import pepdata
+from pepdata.amino_acid import amino_acid_letters
 
 def get_iedb_epitopes(epitope_lengths, positive_ratio=0.6):
     df_tcell = pepdata.iedb.tcell.load_dataframe()
@@ -34,6 +35,11 @@ def get_iedb_epitopes(epitope_lengths, positive_ratio=0.6):
     df_tcell.rename(columns={'Epitope Linear Sequence': 'iedb_epitope'}, inplace=True)
     df_tcell['epitope_length'] = df_tcell['iedb_epitope'].apply(len)
     df_tcell = df_tcell[df_tcell.epitope_length.isin(epitope_lengths)]
+
+    # Exclude amino acid letters like B and Z that are not specific to one amino acid
+    def only_amino_acid_letters(epitope):
+        return all(letter in amino_acid_letters for letter in epitope)
+    df_tcell = df_tcell[df_tcell.iedb_epitope.apply(only_amino_acid_letters)]
 
     # Calculate the T cell positive ratio, and filter by it
     df_tcell['is_tcell_positive'] = df_tcell['Qualitative Measure'].str.startswith('Positive')

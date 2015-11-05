@@ -55,6 +55,8 @@ if __name__ == '__main__':
             'numpy >=1.10.1, <2.0',
             'pandas >=0.17.0',
             'pepdata >= 0.6.7',
+            'statsmodels >= 0.6.1',
+            'scikit-bio >= 0.4.0',
             'nose >=1.3.7',
             'pylint >=1.4.4',
         ],

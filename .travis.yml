@@ -11,7 +11,7 @@ before_install:
   - export PATH=/home/travis/miniconda2/bin:$PATH
 install:
   - conda update --yes conda
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy nose pandas matplotlib
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy nose pandas matplotlib scikit-bio
   - pip install .
   - pip install coveralls
   - pip install pypandoc
