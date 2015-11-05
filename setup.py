@@ -36,7 +36,7 @@ except:
 if __name__ == '__main__':
     setup(
         name='topeology',
-        version="0.0.0",
+        version="0.0.1",
         description="Compare epitope homology",
         author="Tavi Nathanson",
         author_email="tavi {dot} nathanson {at} gmail {dot} com",
