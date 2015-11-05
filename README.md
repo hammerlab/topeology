@@ -6,8 +6,6 @@ Topeology compares neoepitope sequences with epitopes from [IEDB](http://www.ied
 
 ## Example
 
-Given a CSV file that contains the following columns: `sample, epitope`, usage is as follows.
-
 From the command line:
 
 ```sh
@@ -20,7 +18,13 @@ In Python:
 from topeology import compare
 output_dataframe = compare('epitopes.csv')
 ```
-  
+
+Input looks like:
+
+| sample      | epitope
+| ------      | -------
+| 001         | AAALPGKCGV
+
 Output looks like:
 
 | sample      | epitope        | iedb_epitope    | score
