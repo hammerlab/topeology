@@ -19,3 +19,10 @@ script:
   - nosetests test --with-coverage --cover-package=topeology && ./lint.sh
 after_success:
   coveralls
+deploy:
+  provider: pypi
+  user: hammerlab
+  password: # See http://docs.travis-ci.com/user/encryption-keys/
+    secure: "Qqqbl2z57LtQHCVoABDNoisjwIoCCC5wVL9FXDfeg9QWFZvKDrixthqVwETFHS4O2dddkeyAJ2oVbW8aF4+O2S0ah10D+YOzZEdTvc9cHLrq3n+z5u0SLX45LvQR4VKSnajZu6oCtdsO27C0mpm/g03TLgWZGjHfQKmGbwwh29Fx2Y5KS4o+Czia8k8MghXCuT1zSxOa2y2myzWF/8j1vPZltMPHUzA9//eR9V536Nk+Ru4y0nWYLyNuOyVDhDVnt7WltDWRL9rinkEExVo3v7GqyN+9hGvFnhlvb42Ej+BjcRjf6G1xywIPo6YIf7fqWibZuoretKKNgM92mHkfQiaTQLscK3QRHUMubpsJ/UgvQAwf2X/NxW/ias2JRAVmcOBZDxgTjdBRVxr39+n9N3QXD5NCJgnq+SDi9hxEjWwTvUc+SV5rrmab8dGc4FqtoZSKYB8h5JMkGsszlF8SdduRSysaaqfXeB5uAspcP4e590aNbCYj16+SCJ4vO73pbGUVDcEr/MTODoGWIyw/xNhAyLTOKoJXIJqvOS5gkWJT+t0mHgyKIJY2y/UY3oycWg59emst8ctcdrknixr2hjUFT4TxhlWUtcLO4rMqr/7p8z/CtSGUfCeXG5UM0F8I/lD77q1sQuvIygsGOOOzW02Pv1cigVPxVI6xxlEfyuA="
+  on:
+    branch: master

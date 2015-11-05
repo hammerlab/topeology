@@ -13,4 +13,4 @@
 # limitations under the License.
 
 from . import iedb_data
-from .calculate import calculate_similarity
+from .calculate import compare
