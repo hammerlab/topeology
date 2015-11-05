@@ -20,6 +20,12 @@ In Python:
 from topeology import compare
 output_dataframe = compare('epitopes.csv')
 ```
+  
+Output looks like:
+
+| sample      | epitope        | iedb_epitope    | score
+| ------      | -------        | ------------    | -----
+| 001         | AAALPGKCGV     | EFKEFAAGRR      | 2.38
 
 ## Installation
 
