@@ -42,6 +42,11 @@ if __name__ == '__main__':
         author_email="tavi {dot} nathanson {at} gmail {dot} com",
         url="https://github.com/hammerlab/topeology",
         license="http://www.apache.org/licenses/LICENSE-2.0.html",
+        entry_points={
+            'console_scripts': [
+                'topeology = topeology.shell:run'
+            ],
+        },
         classifiers=[
             'Development Status :: 3 - Alpha',
             'Environment :: Console',
@@ -54,9 +59,10 @@ if __name__ == '__main__':
         install_requires=[
             'numpy >=1.10.1, <2.0',
             'pandas >=0.17.0',
-            'pepdata >= 0.6.7',
-            'statsmodels >= 0.6.1',
-            'scikit-bio >= 0.4.0',
+            'pepdata >=0.6.7',
+            'statsmodels >=0.6.1',
+            'scikit-bio >=0.4.0',
+            'six >=1.10.0',
             'nose >=1.3.7',
             'pylint >=1.4.4',
         ],

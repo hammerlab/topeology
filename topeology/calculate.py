@@ -18,15 +18,29 @@ from statsmodels.stats.moment_helpers import cov2corr
 from skbio.alignment import StripedSmithWaterman
 from collections import defaultdict
 import itertools
+import contextlib
+import sys
+from six import StringIO
 
 from .iedb_data import get_iedb_epitopes
 
 INVALID_AMINO_ACID_LETTERS = set(['B', 'Z', 'X', '*'])
 
+# Taken from http://stackoverflow.com/questions/2828953
+@contextlib.contextmanager
+def no_stdout():
+    save_stdout = sys.stdout
+    sys.stdout = StringIO()
+    yield
+    sys.stdout = save_stdout
+
 def get_pmbec():
     """Return a PMBEC correlation 2D dictionary."""
-    pmbec_coeffs = pmbec.read_coefficients()
-    pmbec_coeffs_df = pd.DataFrame(pmbec_coeffs)
+    # Silence stdout, since read_coefficients prints to stdout
+    # TODO: Just fix pepdata.pmbec to not do this.
+    with no_stdout():
+        pmbec_coeffs = pmbec.read_coefficients()
+        pmbec_coeffs_df = pd.DataFrame(pmbec_coeffs)
 
     # Use correlation rather than covariance
     pmbec_df = pd.DataFrame(cov2corr(pmbec_coeffs_df))
@@ -70,7 +84,7 @@ def similarity_score(seq_a, seq_b, substitution_dict, gap_penalty):
 def trim_seq(seq):
     return seq[2:-1]
 
-def get_neoepitopes(epitope_lengths, epitope_file_path):
+def get_neoepitopes(epitope_file_path, epitope_lengths):
     """
     Expected header format: sample, epitope
     """
@@ -94,9 +108,9 @@ def multiply_and_round_dict(dict_2d, scalar):
             new_dict[key_i][key_j] = round(dict_2d[key_i][key_j] * scalar)
     return new_dict
 
-def get_joined_epitopes(epitope_lengths, epitope_file_path):
-    df_neoepitopes = get_neoepitopes(epitope_lengths=epitope_lengths,
-                                     epitope_file_path=epitope_file_path)
+def get_joined_epitopes(epitope_file_path, epitope_lengths):
+    df_neoepitopes = get_neoepitopes(epitope_file_path=epitope_file_path,
+                                     epitope_lengths=epitope_lengths)
     df_iedb_epitopes = get_iedb_epitopes(epitope_lengths=epitope_lengths)
     return df_neoepitopes.merge(df_iedb_epitopes, on='epitope_length')
 
@@ -117,11 +131,14 @@ def calculate_similarity_from_df(df):
     df.score = df.score.apply(lambda score: float(score) / multiply_scalar)
     return df
 
-def calculate_similarity(epitope_lengths, epitope_file_path):
+def compare(epitope_file_path, epitope_lengths=[8, 9, 10, 11]):
     """
     Given a neoepitope file path, compare each epitope with IEDB and
     return a DataFrame with resultant scores.
+
+    Output columns: sample, epitope, iedb_epitope, score
     """
-    df_joined = get_joined_epitopes(epitope_lengths=epitope_lengths,
-                                    epitope_file_path=epitope_file_path)
-    return calculate_similarity_from_df(df_joined)
+    df_joined = get_joined_epitopes(epitope_file_path=epitope_file_path,
+                                    epitope_lengths=epitope_lengths)
+    return calculate_similarity_from_df(df_joined)[[
+        'sample', 'epitope', 'iedb_epitope', 'score']]
