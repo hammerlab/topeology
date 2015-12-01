@@ -4,6 +4,8 @@
 
 Topeology compares neoepitope sequences with epitopes from [IEDB](http://www.iedb.org/).
 
+This software is **not** currently ready for production use.
+
 ## Example
 
 From the command line:
