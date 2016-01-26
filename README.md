@@ -44,4 +44,10 @@ pip install topeology
 ## Methodology
 
 Topeology uses Smith-Waterman alignment to align each neoepitope with each IEDB epitope of the
-same length, and returns the resultant epitope-epitope scores.
+same length, and returns the resultant epitope-epitope scores. Only position 3 to the penultimate
+amino acid are considered.
+
+This software uses the following libraries for Smith-Waterman alignment:
+
+- https://github.com/noporpoise/seq-align
+- https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library
