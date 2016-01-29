@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import pandas as pd
+import numpy as np
 from pepdata import pmbec
 from statsmodels.stats.moment_helpers import cov2corr
 from skbio.alignment import StripedSmithWaterman
@@ -24,7 +25,10 @@ from six import StringIO
 
 from .iedb_data import get_iedb_epitopes
 
-INVALID_AMINO_ACID_LETTERS = set(['B', 'Z', 'X', '*'])
+AMINO_ACID_LETTERS = ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G',
+                      'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S',
+                      'T', 'W', 'Y', 'V']
+INVALID_AMINO_ACID_LETTERS = ['B', 'Z', 'X', '*']
 
 # Taken from http://stackoverflow.com/questions/2828953
 @contextlib.contextmanager
@@ -59,6 +63,28 @@ def get_pmbec():
                 pmbec_dict[letter_i][letter_j] = 0
 
     return pmbec_dict
+
+def pmbec_matrix():
+    column_order = []
+    column_order.extend(AMINO_ACID_LETTERS)
+    column_order.extend(INVALID_AMINO_ACID_LETTERS)
+
+    pmbec_df = pd.DataFrame(get_pmbec())
+
+    # Order the matrix according to this column order in both directions
+    # (horizontal and vertical amino acids)
+    pmbec_df = pmbec_df[column_order]
+    pmbec_df = pmbec_df.T
+    pmbec_df = pmbec_df[column_order]
+    pmbec_df = pmbec_df.T
+
+    return [int(round(val * 100)) for val in pmbec_df.as_matrix().flatten()]
+
+def pmbec_min():
+    return pmbec_matrix().min()
+
+def pmbec_max():
+    return pmbec_matrix().max()
 
 def matrix_values_apply_func(matrix_dict, func):
     """Apply func to the values of a 2D dictionary."""
@@ -119,16 +145,33 @@ def calculate_similarity_from_df(df):
     Given a DataFrame with epitope and iedb_epitope columns, calculate
     a score for every row.
     """
-    # Multiply by 100 to get integers, as StripedSmithWaterman expects integers
-    pmbec_dict = get_pmbec()
-    multiply_scalar = 100.0
-    pmbec_dict = multiply_and_round_dict(pmbec_dict, multiply_scalar)
-    pmbec_min = abs(matrix_values_apply_func(pmbec_dict, min))
-    df['score'] = df.apply(
-        lambda row: similarity_score(row['epitope'], row['iedb_epitope'],
-                                     substitution_dict=pmbec_dict,
-                                     gap_penalty=pmbec_min), axis=1)
-    df.score = df.score.apply(lambda score: float(score) / multiply_scalar)
+    import imp
+    faster = False
+    try:
+        imp.find_module('pmbecalign')
+        faster = True
+    except ImportError:
+        pass
+
+    if faster:
+        from pmbecalign import pmbec_init, pmbec_score
+        pmbec_init(pmbec_matrix())
+        df['score'] = df.apply(
+            lambda row: pmbec_score(trim_seq(row['epitope']),
+                                    trim_seq(row['iedb_epitope'])),
+            axis=1)
+    else:
+        # Multiply by 100 to get integers, as StripedSmithWaterman expects integers
+        pmbec_dict = get_pmbec()
+        multiply_scalar = 100.0
+        pmbec_dict = multiply_and_round_dict(pmbec_dict, multiply_scalar)
+        pmbec_min = abs(matrix_values_apply_func(pmbec_dict, min))
+        df['score'] = df.apply(
+            lambda row: similarity_score(row['epitope'], row['iedb_epitope'],
+                                         substitution_dict=pmbec_dict,
+                                         gap_penalty=pmbec_min), axis=1)
+        df.score = df.score.apply(lambda score: float(score) / multiply_scalar)
+
     return df
 
 def compare(epitope_file_path, epitope_lengths=[8, 9, 10, 11]):
