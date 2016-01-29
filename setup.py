@@ -14,8 +14,10 @@
 
 from __future__ import print_function
 import os
+from os import environ, path
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
+from distutils.core import Extension
 
 readme_dir = os.path.dirname(__file__)
 readme_filename = os.path.join(readme_dir, 'README.md')
@@ -32,6 +34,26 @@ try:
 except:
     print(
         "Conversion of long_description from MD to reStructuredText failed...")
+
+seq_align_path = environ.get('SEQ_ALIGN_PATH')
+extensions = []
+if seq_align_path:
+    seq_align_dirs = [path.join(seq_align_path, 'src'),
+                      path.join(seq_align_path, 'libs'),
+                      path.join(seq_align_path, 'libs/bit_array'),
+                      path.join(seq_align_path, 'libs/string_buffer')]
+    pmbec_align = Extension('pmbecalign',
+                            include_dirs=seq_align_dirs,
+                            library_dirs=seq_align_dirs,
+                            libraries=[
+                                'bitarr',
+                                'strbuf',
+                                'align',
+                                'pthread',
+                                'z'
+                            ],
+                            sources=['pmbec_align.c'])
+    extensions.append(pmbec_align)
 
 if __name__ == '__main__':
     setup(
@@ -67,5 +89,6 @@ if __name__ == '__main__':
             'pylint >=1.4.4',
         ],
         long_description=readme,
+        ext_modules=extensions,
         packages=find_packages(exclude="test")
     )
