@@ -90,6 +90,7 @@ void add_mutations(scoring_t* scoring, const char *str, const int *scores,
 
 static char AMINO_ACIDS[] = "ARNDCQEGHILKMFPSTWYVBZX*";
 static scoring_t scoring;
+static bool scoring_initialized = false;
 
 static bool is_amino_acids(char *seq) {
   size_t len_seq = strlen(seq);
@@ -125,6 +126,11 @@ int pmbec_score_int(scoring_t *scoring, char *seq_a, char *seq_b) {
 
 static PyObject *
 pmbec_norm_score(PyObject *self, PyObject *args) {
+  if (!scoring_initialized) {
+    PyErr_SetString(PyExc_ValueError, "pmbec_init must be called before aligning sequences");
+    return NULL;
+  }
+
   char *seq_a, *seq_b;
   if (!PyArg_ParseTuple(args, "ss", &seq_a, &seq_b))
     return NULL;
@@ -151,6 +157,11 @@ pmbec_norm_score(PyObject *self, PyObject *args) {
 
 static PyObject *
 pmbec_score(PyObject *self, PyObject *args) {
+  if (!scoring_initialized) {
+    PyErr_SetString(PyExc_ValueError, "pmbec_init must be called before aligning sequences");
+    return NULL;
+  }
+
   char *seq_a, *seq_b;
   if (!PyArg_ParseTuple(args, "ss", &seq_a, &seq_b))
     return NULL;
@@ -169,20 +180,8 @@ pmbec_score(PyObject *self, PyObject *args) {
   return PyFloat_FromDouble((float) val / 100.0);
 }
 
-static PyMethodDef PmbecAlignMethods[] = {
-    {"pmbec_score",  pmbec_score, METH_VARARGS,
-     "Calculate the Smith-Waterman alignment score of two sequences using the PMBEC matrix."},
-    {"pmbec_norm_score",  pmbec_norm_score, METH_VARARGS,
-     "Calculate the length-normalized Smith-Waterman alignment score of two sequences using the PMBEC matrix."},
-    {NULL, NULL, 0, NULL}
-};
-
-PyMODINIT_FUNC
-initpmbecalign(void) {
-  PyObject *m = Py_InitModule("pmbecalign", PmbecAlignMethods);
-  if (m == NULL)
-    return;
-
+static PyObject *
+pmbec_init(PyObject *self, PyObject *args) {
   // Default match/mismatch scores; ignorable because matrix covers all scores
   int match = -100;
   int mismatch = -100;
@@ -215,4 +214,23 @@ initpmbecalign(void) {
                no_gaps_in_a, no_gaps_in_b, no_mismatches, case_sensitive);
 
   add_mutations(&scoring, AMINO_ACIDS, PMBEC, use_match_mismatch);
+
+  scoring_initialized = true;
+
+  return Py_None;
+}
+
+static PyMethodDef PmbecAlignMethods[] = {
+  {"pmbec_init", pmbec_init, METH_VARARGS,
+   "Initialize Smith-Waterman alignment scoring using the PMBEC matrix."},
+  {"pmbec_score", pmbec_score, METH_VARARGS,
+   "Calculate the Smith-Waterman alignment score of two sequences using the PMBEC matrix."},
+  {"pmbec_norm_score", pmbec_norm_score, METH_VARARGS,
+   "Calculate the length-normalized Smith-Waterman alignment score of two sequences using the PMBEC matrix."},
+  {NULL, NULL, 0, NULL}
+};
+
+PyMODINIT_FUNC
+initpmbecalign(void) {
+  Py_InitModule("pmbecalign", PmbecAlignMethods);
 }

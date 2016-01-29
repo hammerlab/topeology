@@ -58,7 +58,7 @@ if seq_align_path:
 if __name__ == '__main__':
     setup(
         name='topeology',
-        version="0.0.1",
+        version="0.0.2",
         description="Compare epitope homology",
         author="Tavi Nathanson",
         author_email="tavi {dot} nathanson {at} gmail {dot} com",
