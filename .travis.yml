@@ -12,6 +12,9 @@ before_install:
 install:
   - conda update --yes conda
   - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy nose pandas matplotlib scikit-bio
+  - git clone --recursive https://github.com/noporpoise/seq-align
+  - (cd seq-align && make)
+  - export SEQ_ALIGN_PATH=$PWD/seq-align
   - pip install .
   - pip install coveralls
   - pip install pypandoc
