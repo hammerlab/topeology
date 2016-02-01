@@ -36,6 +36,16 @@ static char AMINO_ACIDS[] = "ARNDCQEGHILKMFPSTWYVBZX*";
 static scoring_t scoring;
 static bool scoring_initialized = false;
 
+// Copied from http://stackoverflow.com/a/13942236
+static PyObject *
+makelist(double array[], size_t size) {
+  PyObject *l = PyList_New(size);
+  for (size_t i = 0; i != size; ++i) {
+    PyList_SET_ITEM(l, i, PyFloat_FromDouble(array[i]));
+  }
+  return l;
+}
+
 static bool is_amino_acids(char *seq) {
   size_t len_seq = strlen(seq);
   int i;
@@ -125,6 +135,48 @@ pmbec_score(PyObject *self, PyObject *args) {
 }
 
 static PyObject *
+pmbec_score_multiple(PyObject *self, PyObject *args) {
+  PyObject *array_seq_a, *array_seq_b;
+  char **seq_a_values, **seq_b_values;
+  double *output;
+  int num_seqs_a, num_seqs_b;
+  int i;
+
+  if (!PyArg_ParseTuple(args, "O!O!", &PyList_Type, &array_seq_a,
+                        &PyList_Type, &array_seq_b)) {
+    return NULL;
+  }
+
+  num_seqs_a = PyList_Size(array_seq_a);
+  num_seqs_b = PyList_Size(array_seq_b);
+  if (num_seqs_a != num_seqs_b) {
+    PyErr_SetString(PyExc_ValueError, "...");
+    return NULL;
+  }
+
+  seq_a_values = calloc(num_seqs_a, sizeof(char*));
+  seq_b_values = calloc(num_seqs_b, sizeof(char*));
+  for (i = 0; i < num_seqs_a; i++) {
+    seq_a_values[i] = (char*) PyString_AsString(PyList_GetItem(array_seq_a, i));
+    seq_b_values[i] = (char*) PyString_AsString(PyList_GetItem(array_seq_b, i));
+  }
+
+  output = calloc(num_seqs_b, sizeof(double));
+  for (i = 0; i < num_seqs_a; i++) {
+    output[i] = pmbec_score_int(&scoring, seq_a_values[i], seq_b_values[i]) / 100.0;
+  }
+
+  free(seq_a_values);
+  free(seq_b_values);
+
+  PyObject* output_list = makelist(output, num_seqs_a);
+
+  free(output);
+
+  return output_list;
+}
+
+static PyObject *
 pmbec_init(PyObject *self, PyObject *args) {
   PyObject *array;
   int *pmbec_values;
@@ -181,6 +233,8 @@ pmbec_init(PyObject *self, PyObject *args) {
 
   scoring_initialized = true;
 
+  free(pmbec_values);
+
   return Py_None;
 }
 
@@ -189,6 +243,8 @@ static PyMethodDef PmbecAlignMethods[] = {
    "Initialize Smith-Waterman alignment scoring using the PMBEC matrix."},
   {"pmbec_score", pmbec_score, METH_VARARGS,
    "Calculate the Smith-Waterman alignment score of two sequences using the PMBEC matrix."},
+  {"pmbec_score_multiple", pmbec_score_multiple, METH_VARARGS,
+   "Calculate the Smith-Waterman alignment score of two sequence lists using the PMBEC matrix."},
   {"pmbec_norm_score", pmbec_norm_score, METH_VARARGS,
    "Calculate the length-normalized Smith-Waterman alignment score of two sequences using the PMBEC matrix."},
   {NULL, NULL, 0, NULL}

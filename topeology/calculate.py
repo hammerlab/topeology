@@ -140,7 +140,7 @@ def get_joined_epitopes(epitope_file_path, epitope_lengths):
     df_iedb_epitopes = get_iedb_epitopes(epitope_lengths=epitope_lengths)
     return df_neoepitopes.merge(df_iedb_epitopes, on='epitope_length')
 
-def calculate_similarity_from_df(df):
+def calculate_similarity_from_df(df, slow_align=False):
     """
     Given a DataFrame with epitope and iedb_epitope columns, calculate
     a score for every row.
@@ -148,18 +148,17 @@ def calculate_similarity_from_df(df):
     import imp
     faster = False
     try:
-        imp.find_module('pmbecalign')
-        faster = True
+        if not slow_align:
+            imp.find_module('pmbecalign')
+            faster = True
     except ImportError:
         pass
 
     if faster:
-        from pmbecalign import pmbec_init, pmbec_score
+        from pmbecalign import pmbec_init, pmbec_score_multiple
         pmbec_init(pmbec_matrix())
-        df['score'] = df.apply(
-            lambda row: pmbec_score(trim_seq(row['epitope']),
-                                    trim_seq(row['iedb_epitope'])),
-            axis=1)
+        df['score'] =  pmbec_score_multiple(list(df['epitope']),
+                                            list(df['iedb_epitope']))
     else:
         # Multiply by 100 to get integers, as StripedSmithWaterman expects integers
         pmbec_dict = get_pmbec()
