@@ -40,7 +40,8 @@ static bool scoring_initialized = false;
 static PyObject *
 makelist(double array[], size_t size) {
   PyObject *l = PyList_New(size);
-  for (size_t i = 0; i != size; ++i) {
+  size_t i;
+  for (i = 0; i != size; ++i) {
     PyList_SET_ITEM(l, i, PyFloat_FromDouble(array[i]));
   }
   return l;
