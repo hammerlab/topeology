@@ -16,7 +16,7 @@ def test_single_comparison():
     df_scores = calculate_similarity_from_df(df)
 
     # TODO: This score is currently unverified
-    eq_(df_scores.score.max(), 2.38)
+    eq_(df_scores.score.max(), 2.66)
 
 def test_calculate_similarity():
     df_scores = compare(epitope_file_path=TEST_EPITOPES,
