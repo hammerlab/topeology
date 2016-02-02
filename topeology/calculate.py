@@ -22,8 +22,10 @@ import itertools
 import contextlib
 import sys
 from six import StringIO
+import imp
 
 from .iedb_data import get_iedb_epitopes
+from pmbecalign import pmbec_init, pmbec_score_multiple
 
 AMINO_ACID_LETTERS = ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G',
                       'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S',
@@ -145,7 +147,6 @@ def calculate_similarity_from_df(df, slow_align=False):
     Given a DataFrame with epitope and iedb_epitope columns, calculate
     a score for every row.
     """
-    import imp
     faster = False
     try:
         if not slow_align:
@@ -155,7 +156,6 @@ def calculate_similarity_from_df(df, slow_align=False):
         pass
 
     if faster:
-        from pmbecalign import pmbec_init, pmbec_score_multiple
         pmbec_init(pmbec_matrix())
         df['score'] =  pmbec_score_multiple(list(df['epitope']),
                                             list(df['iedb_epitope']))
