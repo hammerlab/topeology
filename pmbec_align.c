@@ -158,8 +158,8 @@ pmbec_score_multiple(PyObject *self, PyObject *args) {
   seq_a_values = calloc(num_seqs_a, sizeof(char*));
   seq_b_values = calloc(num_seqs_b, sizeof(char*));
   for (i = 0; i < num_seqs_a; i++) {
-    seq_a_values[i] = (char*) PyString_AsString(PyList_GetItem(array_seq_a, i));
-    seq_b_values[i] = (char*) PyString_AsString(PyList_GetItem(array_seq_b, i));
+    seq_a_values[i] = (char*) PyBytes_AsString(PyList_GetItem(array_seq_a, i));
+    seq_b_values[i] = (char*) PyBytes_AsString(PyList_GetItem(array_seq_b, i));
   }
 
   output = calloc(num_seqs_b, sizeof(double));
@@ -196,7 +196,7 @@ pmbec_init(PyObject *self, PyObject *args) {
 
   pmbec_values = calloc(pmbec_count, sizeof(int));
   for (i = 0; i < pmbec_count; i++) {
-    pmbec_values[i] = (int) PyInt_AsLong(PyList_GetItem(array, i));
+    pmbec_values[i] = (int) PyLong_AsLong(PyList_GetItem(array, i));
   }
 
   // Default match/mismatch scores; ignorable because matrix covers all scores
