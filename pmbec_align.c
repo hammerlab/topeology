@@ -251,7 +251,21 @@ static PyMethodDef PmbecAlignMethods[] = {
   {NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef PmbecAlign = {
+  PyModuleDef_HEAD_INIT,
+  "pmbecalign",
+  "",
+  -1,
+  PmbecAlignMethods
+};
+#endif
+
 PyMODINIT_FUNC
 initpmbecalign(void) {
+#if PY_MAJOR_VERSION >= 3
+  PyModule_Create(&PmbecAlign);
+#else
   Py_InitModule("pmbecalign", PmbecAlignMethods);
+#endif 
 }
