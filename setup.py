@@ -15,6 +15,7 @@
 from __future__ import print_function
 import os
 from os import environ, path
+import warnings
 
 from setuptools import setup, find_packages, Extension
 from distutils.core import Extension
@@ -46,14 +47,17 @@ if seq_align_path:
                             include_dirs=seq_align_dirs,
                             library_dirs=seq_align_dirs,
                             libraries=[
-                                'bitarr',
-                                'strbuf',
                                 'align',
+                                'strbuf',
+                                'bitarr',
                                 'pthread',
                                 'z'
                             ],
                             sources=['pmbec_align.c'])
     extensions.append(pmbec_align)
+else:
+    warnings.warn("seq-align is not installed and/or SEQ_ALIGN_PATH is not set, "
+                  "so fast Smith-Waterman alignment is currently disabled.")
 
 if __name__ == '__main__':
     setup(
