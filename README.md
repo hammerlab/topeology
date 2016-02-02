@@ -49,5 +49,5 @@ amino acid are considered.
 
 This software uses the following libraries for Smith-Waterman alignment:
 
-- https://github.com/noporpoise/seq-align
-- https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library
+- [seq-align](https://github.com/noporpoise/seq-align)
+- [Complete-Striped-Smith-Waterman-Library](https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library)
