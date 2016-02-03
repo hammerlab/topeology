@@ -36,9 +36,18 @@ static char AMINO_ACIDS[] = "ARNDCQEGHILKMFPSTWYVBZX*";
 static scoring_t scoring;
 static bool scoring_initialized = false;
 
+static char *
+string_from_pyobject(PyObject *obj) {
+#if PY_MAJOR_VERSION >= 3
+  return PyUnicode_AsUTF8(obj);
+#else
+  return PyBytes_AsString(obj);
+#endif
+}
+
 // Copied from http://stackoverflow.com/a/13942236
 static PyObject *
-makelist(double array[], size_t size) {
+make_list(double array[], size_t size) {
   PyObject *l = PyList_New(size);
   size_t i;
   for (i = 0; i != size; ++i) {
@@ -158,8 +167,8 @@ pmbec_score_multiple(PyObject *self, PyObject *args) {
   seq_a_values = calloc(num_seqs_a, sizeof(char*));
   seq_b_values = calloc(num_seqs_b, sizeof(char*));
   for (i = 0; i < num_seqs_a; i++) {
-    seq_a_values[i] = (char*) PyBytes_AsString(PyList_GetItem(array_seq_a, i));
-    seq_b_values[i] = (char*) PyBytes_AsString(PyList_GetItem(array_seq_b, i));
+    seq_a_values[i] = (char*) string_from_pyobject(PyList_GetItem(array_seq_a, i));
+    seq_b_values[i] = (char*) string_from_pyobject(PyList_GetItem(array_seq_b, i));
   }
 
   output = calloc(num_seqs_b, sizeof(double));
@@ -170,7 +179,7 @@ pmbec_score_multiple(PyObject *self, PyObject *args) {
   free(seq_a_values);
   free(seq_b_values);
 
-  PyObject* output_list = makelist(output, num_seqs_a);
+  PyObject* output_list = make_list(output, num_seqs_a);
 
   free(output);
 
