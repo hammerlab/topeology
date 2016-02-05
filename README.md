@@ -46,7 +46,7 @@ installed if [seq-align] is installed; otherwise, topeology reverts to using ano
 
 To install topeology with this extension:
 - Follow [seq-align]'s installation instructions, and then set `SEQ_ALIGN_PATH` to the installation
-  director.
+  directory.
 - Install topeology via `pip`. If topeology is already installed, run `pip install topeology --upgrade --no-deps --force-reinstall`.
 
 ## Methodology
