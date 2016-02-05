@@ -12,9 +12,9 @@ def test_fast_versus_slow():
                        'epitope': ['AAAAL'] * 1000,
                        'iedb_epitope': ['AGGGT'] * 1000})
     from timeit import Timer
-    slow_timer = Timer(lambda: calculate_similarity_from_df(df, slow_align=True))
+    slow_timer = Timer(lambda: calculate_similarity_from_df(df, ignore_seqalign=True))
     slow_time = slow_timer.timeit(number=3)
-    fast_timer = Timer(lambda: calculate_similarity_from_df(df, slow_align=False))
+    fast_timer = Timer(lambda: calculate_similarity_from_df(df, ignore_seqalign=False))
     fast_time = fast_timer.timeit(number=3)
     ok_(slow_time > fast_time * 5,
         ("The fast similarity calculation (%0.2f) should be at least "

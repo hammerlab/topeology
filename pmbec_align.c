@@ -190,10 +190,15 @@ static PyObject *
 pmbec_init(PyObject *self, PyObject *args) {
   PyObject *array;
   int *pmbec_values;
-  int pmbec_count;
-  int i;
+  int pmbec_count, gap_extend, i;
 
-  if (!PyArg_ParseTuple(args, "O!", &PyList_Type, &array)) {
+  if (!PyArg_ParseTuple(args, "iO!", &gap_extend, &PyList_Type, &array)) {
+    return NULL;
+  }
+
+  // Accept only a positive value for the gap extension
+  if (gap_extend < 0) {
+    PyErr_SetString(PyExc_ValueError, "Gap extension penalty must be >= 0");
     return NULL;
   }
 
@@ -215,11 +220,9 @@ pmbec_init(PyObject *self, PyObject *args) {
   // Don't ever use the defaults specified above, since the matrix covers all scores
   char use_match_mismatch = 0;
 
-  // Gap penalty is equal to min(PMBEC); see pmbec_min() in pmbec.py
-  int gap_extend = -50;
-
   // Gap penalty = gap_open + gap_extend * length of gap, so we'll just rely on gap_extend
   // without any opening-specific penalties
+  gap_extend = gap_extend * -1; // seq-align expects negative gap penalties
   int gap_open = 0;
 
   // No special treatment for gaps at the start
