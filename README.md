@@ -41,6 +41,15 @@ You can install topeology using [pip](https://pip.pypa.io/en/latest/quickstart.h
 pip install topeology
 ```
 
+Currently, topeology wraps [seq-align] in a C extension, which will be installed if [seq-align]
+is installed. (Otherwise, topeology reverts to using another scorer.)
+
+To set up [seq-align] for topeology: follow [seq-align]'s installation instructions, and then set
+`SEQ_ALIGN_PATH` to your [seq-align] installation directory before installing topeology.
+
+If topeology is already installed with [seq-align], perform the above steps and then run
+`pip install topeology --upgrade --no-deps --force-reinstall`.
+
 ## Methodology
 
 Topeology uses Smith-Waterman alignment to align each neoepitope with each IEDB epitope of the
@@ -49,5 +58,7 @@ amino acid are considered.
 
 This software uses the following libraries for Smith-Waterman alignment:
 
-- [seq-align](https://github.com/noporpoise/seq-align)
+- [seq-align]
 - [Complete-Striped-Smith-Waterman-Library](https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library)
+
+[seq-align]: https://github.com/noporpoise/seq-align
