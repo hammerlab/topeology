@@ -1,4 +1,6 @@
 [TYPECHECK]
-# Without ignoring this, we get errors like:
+# Without ignoring numpy, we get errors like:
 # E:249,20: Module 'numpy' has no 'nan' member (no-member)
-ignored-modules = numpy
+# Without ignoring pmbecalign, we get errors like:
+# E:158, 8: No name 'pmbec_init' in module 'pmbecalign' (no-name-in-module)
+ignored-modules = numpy,pmbecalign

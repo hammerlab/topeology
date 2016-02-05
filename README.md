@@ -35,11 +35,19 @@ Output looks like:
 
 ## Installation
 
-You can install topeology using [pip](https://pip.pypa.io/en/latest/quickstart.html):
+You can install topeology using [pip]:
 
 ```sh
 pip install topeology
 ```
+
+Currently, topeology use [seq-align] to quickly compare sequences, wrapped in a C extension. It will be
+installed if [seq-align] is installed; otherwise, topeology reverts to using another scorer.
+
+To install topeology with this extension:
+- Follow [seq-align]'s installation instructions, and then set `SEQ_ALIGN_PATH` to the installation
+  directory.
+- Install topeology via [pip]. If topeology is already installed, run `pip install topeology --upgrade --no-deps --force-reinstall`.
 
 ## Methodology
 
@@ -49,5 +57,8 @@ amino acid are considered.
 
 This software uses the following libraries for Smith-Waterman alignment:
 
-- https://github.com/noporpoise/seq-align
-- https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library
+- [seq-align]
+- [Complete-Striped-Smith-Waterman-Library](https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library)
+
+[seq-align]: https://github.com/noporpoise/seq-align
+[pip]: https://pip.pypa.io/en/latest/quickstart.html
