@@ -41,14 +41,13 @@ You can install topeology using [pip](https://pip.pypa.io/en/latest/quickstart.h
 pip install topeology
 ```
 
-Currently, topeology wraps [seq-align] in a C extension, which will be installed if [seq-align]
-is installed. (Otherwise, topeology reverts to using another scorer.)
+Currently, topeology use [seq-align] to quickly compare sequences, wrapped in a C extension. It will be
+installed if [seq-align] is installed; otherwise, topeology reverts to using another scorer.
 
-To set up [seq-align] for topeology: follow [seq-align]'s installation instructions, and then set
-`SEQ_ALIGN_PATH` to your [seq-align] installation directory before installing topeology.
-
-If topeology is already installed with [seq-align], perform the above steps and then run
-`pip install topeology --upgrade --no-deps --force-reinstall`.
+To install topeology with this extension:
+- Follow [seq-align]'s installation instructions, and then set `SEQ_ALIGN_PATH` to the installation
+  director.
+- Install topeology via `pip`. If topeology is already installed, run `pip install topeology --upgrade --no-deps --force-reinstall`.
 
 ## Methodology
 
