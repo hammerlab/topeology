@@ -35,9 +35,9 @@ Output (neoepitopes compared with IEDB) looks like:
 
 Output (neoepitopes compared with each other) looks like:
 
-| sample_x      | sample_y        | epitope        | iedb_epitope    | score
-| --------      | --------        | -------        | ------------    | -----
-| 001           | 002             | AAALPGKCGV     | EFKEFAAGRR      | 2.38
+| sample_x      | sample_y        | epitope_x        | epitope_y       | score
+| --------      | --------        | ---------        | ----------      | -----
+| 001           | 002             | AAALPGKCGV       | EFKEFAAGRR      | 2.38
 
 ## Installation
 
