@@ -19,6 +19,8 @@ import imp
 from .iedb_data import get_iedb_epitopes
 from .scorers import CSSWLScorer, SeqAlignScorer
 
+HOW_CHOICES = ["iedb", "self"]
+
 def get_neoepitopes(epitope_file_path, epitope_lengths):
     """
     Expected header format: sample, epitope
@@ -33,9 +35,8 @@ def get_neoepitopes(epitope_file_path, epitope_lengths):
     return df_neoepitopes
 
 def how_check(how):
-    how_types = ["iedb", "self"]
-    if how not in how_types:
-        return ValueError("Invalid how type %s. Expected one of %s" % (how, how_types))
+    if how not in HOW_CHOICES:
+        return ValueError("Invalid how choice %s. Expected one of %s" % (how, HOW_CHOICES))
 
 def get_joined_epitopes(epitope_file_path, epitope_lengths, how):
     df_neoepitopes = get_neoepitopes(epitope_file_path=epitope_file_path,

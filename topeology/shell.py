@@ -20,6 +20,7 @@ Compare neoepitopes with epitopes from IEDB.
 from __future__ import print_function, absolute_import
 import argparse
 from topeology import compare
+from topeology.calculate import HOW_CHOICES
 
 def run():
     parser = argparse.ArgumentParser(usage=__doc__)
@@ -34,11 +35,18 @@ def run():
         type=int,
         default=[8, 9, 10, 11],
         help='CSV file containing predicted epitopes and corresponding HLA alleles')
+    parser.add_argument(
+        '--how',
+        nargs=1,
+        required=True,
+        choices=HOW_CHOICES,
+        help='Compare neoepitopes with what?')
     args = parser.parse_args()
     if len(args.input) > 1:
         raise ValueError('Only a single --input file is allowed.')
     compare_df = compare(epitope_file_path=args.input[0],
-                         epitope_lengths=args.epitope_lengths)
+                         epitope_lengths=args.epitope_lengths,
+                         how=args.how[0])
     print(compare_df.to_csv(index=False))
     
 if __name__ == '__main__':
