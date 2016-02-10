@@ -2,7 +2,7 @@
 
 # Topeology
 
-Topeology compares neoepitope sequences with epitopes from [IEDB](http://www.iedb.org/).
+Topeology compares neoepitope sequences with each other or with epitopes from [IEDB](http://www.iedb.org/).
 
 This software is **not** currently ready for production use.
 
@@ -11,14 +11,14 @@ This software is **not** currently ready for production use.
 From the command line:
 
 ```sh
-topeology --input epitopes.csv --epitope-lengths 8 9 10 11 > scores.csv
+topeology --input epitopes.csv --epitope-lengths 8 9 10 11 --how iedb > scores.csv
 ```
 
 In Python:
 
 ```python
 from topeology import compare
-output_dataframe = compare('epitopes.csv')
+output_dataframe_iedb = compare('epitopes.csv', how='iedb')
 ```
 
 Input looks like:
@@ -27,11 +27,17 @@ Input looks like:
 | ------      | -------
 | 001         | AAALPGKCGV
 
-Output looks like:
+Output (neoepitopes compared with IEDB) looks like:
 
 | sample      | epitope        | iedb_epitope    | score
 | ------      | -------        | ------------    | -----
 | 001         | AAALPGKCGV     | EFKEFAAGRR      | 2.38
+
+Output (neoepitopes compared with each other) looks like:
+
+| sample_x      | sample_y        | epitope        | iedb_epitope    | score
+| --------      | --------        | -------        | ------------    | -----
+| 001           | 002             | AAALPGKCGV     | EFKEFAAGRR      | 2.38
 
 ## Installation
 
