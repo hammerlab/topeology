@@ -32,13 +32,22 @@ def get_neoepitopes(epitope_file_path, epitope_lengths):
     df_neoepitopes.reset_index(drop=True, inplace=True)
     return df_neoepitopes
 
-def get_joined_epitopes(epitope_file_path, epitope_lengths):
+def how_check(how):
+    how_types = ["iedb", "self"]
+    if how not in how_types:
+        return ValueError("Invalid how type %s. Expected one of %s" % (how, how_types))
+
+def get_joined_epitopes(epitope_file_path, epitope_lengths, how):
     df_neoepitopes = get_neoepitopes(epitope_file_path=epitope_file_path,
                                      epitope_lengths=epitope_lengths)
-    df_iedb_epitopes = get_iedb_epitopes(epitope_lengths=epitope_lengths)
-    return df_neoepitopes.merge(df_iedb_epitopes, on="epitope_length")
+    how_check(how)
+    if how == "iedb":
+        df_iedb_epitopes = get_iedb_epitopes(epitope_lengths=epitope_lengths)
+        return df_neoepitopes.merge(df_iedb_epitopes, on="epitope_length")
+    else:
+        return df_neoepitopes.merge(df_neoepitopes, on="epitope_length")
 
-def calculate_similarity_from_df(df, ignore_seqalign=False):
+def calculate_similarity_from_df(df, col_a, col_b, ignore_seqalign=False):
     """
     Given a DataFrame with epitope and iedb_epitope columns, calculate
     a score for every row.
@@ -52,11 +61,11 @@ def calculate_similarity_from_df(df, ignore_seqalign=False):
         pass
 
     scorer = SeqAlignScorer() if seqalign_found else CSSWLScorer()
-    df["score"] = scorer.score_multiple(df, "epitope", "iedb_epitope")
+    df["score"] = scorer.score_multiple(df, col_a, col_b)
 
     return df
 
-def compare(epitope_file_path, epitope_lengths=[8, 9, 10, 11]):
+def compare(epitope_file_path, how, epitope_lengths=[8, 9, 10, 11]):
     """
     Given a neoepitope file path, compare each epitope with IEDB and
     return a DataFrame with resultant scores.
@@ -64,6 +73,14 @@ def compare(epitope_file_path, epitope_lengths=[8, 9, 10, 11]):
     Output columns: sample, epitope, iedb_epitope, score
     """
     df_joined = get_joined_epitopes(epitope_file_path=epitope_file_path,
-                                    epitope_lengths=epitope_lengths)
-    return calculate_similarity_from_df(df_joined)[[
-        "sample", "epitope", "iedb_epitope", "score"]]
+                                    epitope_lengths=epitope_lengths,
+                                    how=how)
+    how_check(how)
+    if how == "iedb":
+        return calculate_similarity_from_df(
+            df_joined, col_a="epitope", col_b="iedb_epitope")[[
+                "sample", "epitope", "iedb_epitope", "score"]]
+    else:
+         return calculate_similarity_from_df(
+            df_joined, col_a="epitope_x", col_b="epitope_y")[[
+                "sample_x", "sample_y", "epitope_x", "epitope_y", "score"]]
