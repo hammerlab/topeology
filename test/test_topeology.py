@@ -18,6 +18,15 @@ def test_single_comparison():
     # TODO: This score is currently unverified
     eq_(df_scores.score.max(), 2.38)
 
+def test_single_comparison_ignore_seqalign():
+    df = pd.DataFrame({'Sample': '001',
+                       'epitope': ['AAALPGKCGV'],
+                       'iedb_epitope': ['EFKEFAAGRR']})
+    df_scores = calculate_similarity_from_df(df, ignore_seqalign=True)
+
+    # TODO: This score is currently unverified
+    eq_(df_scores.score.max(), 2.38)
+
 def test_calculate_similarity():
     df_scores = compare(epitope_file_path=TEST_EPITOPES,
                         epitope_lengths=[8, 9, 10, 11])

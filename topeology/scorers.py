@@ -40,7 +40,9 @@ class CSSWLScorer(Scorer):
             seq_a, protein=True,
             gap_open_penalty=self.gap_penalty, gap_extend_penalty=self.gap_penalty,
             substitution_matrix=self.aa.as_int_dict())
-        return query(seq_b)["optimal_alignment_score"]
+
+        # Normalize to be in line with SeqAlignScorer
+        return query(seq_b)["optimal_alignment_score"] / 100.
 
 class SeqAlignScorer(Scorer):
     """Use the seq-align library, via the pmbecalign C extension, to align seq_a and seq_b."""
