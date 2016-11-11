@@ -41,7 +41,6 @@ extensions = []
 if seq_align_path:
     seq_align_dirs = [path.join(seq_align_path, 'src'),
                       path.join(seq_align_path, 'libs'),
-                      path.join(seq_align_path, 'libs/bit_array'),
                       path.join(seq_align_path, 'libs/string_buffer')]
     pmbec_align = Extension('pmbecalign',
                             include_dirs=seq_align_dirs,
@@ -49,7 +48,6 @@ if seq_align_path:
                             libraries=[
                                 'align',
                                 'strbuf',
-                                'bitarr',
                                 'pthread',
                                 'z'
                             ],
