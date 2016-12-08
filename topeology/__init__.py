@@ -12,5 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import iedb_data
 from .calculate import compare
+from .iedb_data import DataFilter

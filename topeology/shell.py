@@ -40,6 +40,6 @@ def run():
     compare_df = compare(epitope_file_path=args.input[0],
                          epitope_lengths=args.epitope_lengths)
     print(compare_df.to_csv(index=False))
-    
+
 if __name__ == '__main__':
     run()

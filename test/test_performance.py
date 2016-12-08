@@ -8,7 +8,7 @@ from .data import data_path
 TEST_EPITOPES = data_path('test_epitopes.csv')
 
 def test_fast_versus_slow():
-    df = pd.DataFrame({'Sample': '001',
+    df = pd.DataFrame({'sample': '001',
                        'epitope': ['AAAAL'] * 1000,
                        'iedb_epitope': ['AGGGT'] * 1000})
     from timeit import Timer

@@ -34,7 +34,7 @@ class CSSWLScorer(Scorer):
 
         # From https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library/
         # blob/master/README.md:
-        # "Note: When SSW open a gap, the gap open penalty alone is applied."
+        # 'Note: When SSW open a gap, the gap open penalty alone is applied.'
         from skbio.alignment import StripedSmithWaterman
         query = StripedSmithWaterman(
             seq_a, protein=True,
@@ -42,7 +42,7 @@ class CSSWLScorer(Scorer):
             substitution_matrix=self.aa.as_int_dict())
 
         # Normalize to be in line with SeqAlignScorer
-        return query(seq_b)["optimal_alignment_score"] / 100.
+        return query(seq_b)['optimal_alignment_score'] / 100.
 
 class SeqAlignScorer(Scorer):
     """Use the seq-align library, via the pmbecalign C extension, to align seq_a and seq_b."""
@@ -50,20 +50,24 @@ class SeqAlignScorer(Scorer):
     def __init__(self):
         Scorer.__init__(self)
 
-        # Gap penalty = gap_open + gap_extend * length of gap, so we"ll just rely on gap_extend
+        # Gap penalty = gap_open + gap_extend * length of gap, so we'll just rely on gap_extend
         from pmbecalign import pmbec_init
         pmbec_init(self.gap_penalty, self.aa.as_int_list())
 
     def score_multiple(self, df, col_a, col_b):
         new_df = df.copy()
-        trimmed_col_a = "trimmed_" + col_a
-        trimmed_col_b = "trimmed_" + col_b
+        trimmed_col_a = 'trimmed_' + col_a
+        trimmed_col_b = 'trimmed_' + col_b
         new_df[trimmed_col_a] = new_df[col_a].apply(trim_seq)
         new_df[trimmed_col_b] = new_df[col_b].apply(trim_seq)
 
         from pmbecalign import pmbec_score_multiple
-        return pmbec_score_multiple(list(new_df[trimmed_col_a]),
-                                    list(new_df[trimmed_col_b]))
+        scores = pmbec_score_multiple(list(new_df[trimmed_col_a]),
+                                      list(new_df[trimmed_col_b]))
+
+        # TODO: Why are scores sometimes negative? Fix this.
+        scores = [0 if score < 0 else score for score in scores]
+        return scores
 
 def trim_seq(seq):
     return seq[2:-1]
