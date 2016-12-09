@@ -14,21 +14,18 @@
 
 from __future__ import print_function, absolute_import
 
-import sys
-import logging
 import numpy as np
 import pandas as pd
 from mhctools.alleles import normalize_allele_name, compact_allele_name
 import pepdata
 from pepdata.amino_acid import amino_acid_letters
 
-logger = logging.getLogger(__name__)
-stdout_handler = logging.StreamHandler(sys.stdout)
-logger.addHandler(stdout_handler)
-logger.setLevel(logging.INFO)
+from .common import get_logger
+
+logger = get_logger(__name__)
 
 class DataFilter(object):
-    def __init__(self, on, filter_col='Epitope Source Molecule Name', case_sensitive=False):
+    def __init__(self, on, filter_col, case_sensitive=False):
         self.on = on
         self.filter_col = filter_col
         self.case_sensitive = case_sensitive
@@ -78,28 +75,29 @@ def get_iedb_epitopes(epitope_lengths, positive_ratio=0.6, include_hla=False,
     df_tcell = df_tcell[df_tcell['Host Organism Name'].fillna('').str.contains('Homo sap')]
 
     # Remove self
-    df_tcell = df_tcell[~df_tcell['Epitope Source Organism Name'].fillna('').str.contains(
-        'homo sap', case=False)]
+    data_filters.insert(
+        0, DataFilter(on='homo sap', filter_col='Epitope Source Organism Name'))
 
-    # Remove allergens
-    for column in ['Epitope Source Molecule Name', 'In Vivo 1 Process Type',
-                   'In Vivo 2 Process Type']:
-        df_tcell = df_tcell[~df_tcell[column].fillna('').str.contains('allerg', case=False)]
-
+    # Filter out based on other attributes
     for data_filter in data_filters:
         old_len = len(df_tcell)
         df_tcell = data_filter.run_filter(df_tcell)
         new_len = len(df_tcell)
-        logger.info('Filtering on %s: %d to %d elements' % (data_filter.on, old_len, new_len))
+        logger.info('Filtering on %s (col %s): %d to %d elements' % (data_filter.on, data_filter.filter_col,
+                                                            old_len, new_len))
 
     # Only certain lengths
     df_tcell.rename(columns={'Epitope Linear Sequence': 'iedb_epitope'}, inplace=True)
     df_tcell['epitope_length'] = df_tcell['iedb_epitope'].fillna('').apply(len)
-    df_tcell = df_tcell[df_tcell.epitope_length.isin(epitope_lengths)]
+    if epitope_lengths is not None:
+        df_tcell = df_tcell[df_tcell.epitope_length.isin(epitope_lengths)]
 
     # Exclude amino acid letters like B and Z that are not specific to one amino acid
     def only_amino_acid_letters(epitope):
         return all(letter in amino_acid_letters for letter in epitope)
+    # Only look at epitopes that are valid strings
+    df_tcell = df_tcell[(df_tcell.iedb_epitope.apply(type) == unicode) |
+                        (df_tcell.iedb_epitope.apply(type) == str)]
     df_tcell = df_tcell[df_tcell.iedb_epitope.apply(only_amino_acid_letters)]
 
     # Calculate the T cell positive ratio, and filter by it

@@ -20,11 +20,9 @@ import imp
 
 from .iedb_data import get_iedb_epitopes
 from .scorers import CSSWLScorer, SeqAlignScorer
+from .common import get_logger
 
-logger = logging.getLogger(__name__)
-stdout_handler = logging.StreamHandler(sys.stdout)
-logger.addHandler(stdout_handler)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 def get_neoepitopes(epitopes, epitope_lengths):
     """
