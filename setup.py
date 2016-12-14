@@ -84,6 +84,7 @@ if __name__ == '__main__':
             'numpy >=1.10.1, <2.0',
             'pandas >=0.17.0',
             'pepdata >=0.6.7',
+            'mhctools >=0.4.0',
             'statsmodels >=0.6.1',
             'scikit-bio >=0.4.0',
             'six >=1.10.0',
