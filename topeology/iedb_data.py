@@ -19,6 +19,7 @@ import pandas as pd
 from mhctools.alleles import normalize_allele_name, compact_allele_name
 import pepdata
 from pepdata.amino_acid import amino_acid_letters
+from six import string_types
 
 from .common import get_logger
 
@@ -98,8 +99,8 @@ def get_iedb_epitopes(epitope_lengths, positive_ratio=0.6, include_hla=False,
     def only_amino_acid_letters(epitope):
         return all(letter in amino_acid_letters for letter in epitope)
     # Only look at epitopes that are valid strings
-    df_tcell = df_tcell[(df_tcell.iedb_epitope.apply(type) == unicode) |
-                        (df_tcell.iedb_epitope.apply(type) == str)]
+
+    df_tcell = df_tcell[df_tcell.iedb_epitope.apply(lambda s: isinstance(s, string_types))]
     df_tcell = df_tcell[df_tcell.iedb_epitope.apply(only_amino_acid_letters)]
 
     # Calculate the T cell positive ratio, and filter by it
