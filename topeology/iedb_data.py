@@ -90,6 +90,8 @@ def get_iedb_epitopes(epitope_lengths, positive_ratio=0.6, include_hla=False,
     df_tcell.rename(columns={'Epitope Linear Sequence': 'iedb_epitope'}, inplace=True)
     df_tcell['epitope_length'] = df_tcell['iedb_epitope'].fillna('').apply(len)
     if epitope_lengths is not None:
+        # pylint: disable=no-member
+        # pylint gets confused by df_tcell.epitope_length here
         df_tcell = df_tcell[df_tcell.epitope_length.isin(epitope_lengths)]
 
     # Exclude amino acid letters like B and Z that are not specific to one amino acid
@@ -116,6 +118,8 @@ def get_iedb_epitopes(epitope_lengths, positive_ratio=0.6, include_hla=False,
     tcell_keep_cols = ['iedb_epitope', 'epitope_length', 'is_tcell_positive']
 
     if include_organism:
+        # pylint: disable=no-member
+        # pylint gets confused by df_tcell.rename here
         df_tcell.rename(columns={'Epitope Source Organism Name': 'organism'}, inplace=True)
         tcell_keep_cols.append('organism')
 

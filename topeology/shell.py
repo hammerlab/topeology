@@ -37,7 +37,7 @@ def run():
     args = parser.parse_args()
     if len(args.input) > 1:
         raise ValueError('Only a single --input file is allowed.')
-    compare_df = compare(epitope_file_path=args.input[0],
+    compare_df = compare(epitopes=args.input[0],
                          epitope_lengths=args.epitope_lengths)
     print(compare_df.to_csv(index=False))
 
