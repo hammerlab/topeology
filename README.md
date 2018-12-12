@@ -4,6 +4,8 @@
 
 Topeology compares neoepitope sequences with epitopes from [IEDB](http://www.iedb.org/).
 
+Note: Topeology is no longer being actively maintained.
+
 ## Example
 
 From the command line:
